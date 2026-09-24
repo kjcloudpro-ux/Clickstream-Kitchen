@@ -1,6 +1,5 @@
+# Databricks notebook source
 """Clickstream Kitchen ETL job: Extract, Transform, Load click events into Delta Lake."""
-import argparse
-
 from pyspark.sql import DataFrame, SparkSession, functions as F
 
 
@@ -39,15 +38,14 @@ def load(df: DataFrame, table_name: str) -> None:
     df.write.format("delta").mode("overwrite").saveAsTable(table_name)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--table", default="workspace.default.daily_clicks")
-    args = parser.parse_args()
+TABLE_NAME = "workspace.default.daily_clicks"
 
+
+def main() -> None:
     spark = SparkSession.builder.getOrCreate()
     raw = extract(spark)
     summary = daily_click_counts(clean_clicks(raw))
-    load(summary, args.table)
+    load(summary, TABLE_NAME)
     summary.show()
 
 
